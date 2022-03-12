@@ -17,8 +17,8 @@
 
 			\vspace{\stretch{0.382}}
 
-			\Huge{Projekt 1.~část} \\
-			\Huge{Datový model (ERD), model případů užití} \\
+			\Huge{Projekt 1.~časť} \\
+			\Huge{Dátový model (ERD), model prípadov užitia} \\
 			\LARGE{\textbf{Zoologická záhrada}} \\
 			\Large{Databázové systémy}
 
@@ -50,7 +50,7 @@
 
 			\textbf{Ošetrovateľ} má priamu zodpovednosť za živočícha, môže si ho teda vyhladať, zadať vlastnosť akou je napríklad \textit{hmostnosť, rozmery, farba, \dots}. Záleží akú vlastnosť je dôležité evidovať pri konkretnom druhu zvieraťa.
 
-			\textbf{Administrativny pracovnik} sa priamo o zviera nestará, no je zodpovedný za administratívu okolo zvierat. Dedí teda všetky aspekty aktéra \textbf{Ošetrovateľ} a naviac má svoje vlastné - pridať/upraviť živočícha, či jeho druh, krmivo alebo umiestnenie.
+			\textbf{Administratívny pracovník} sa priamo o zviera nestará, no je zodpovedný za administratívu okolo zvierat. Dedí teda všetky aspekty aktéra \textbf{Ošetrovateľ} a naviac má svoje vlastné - pridať/upraviť živočícha, či jeho druh, krmivo alebo umiestnenie.
 
 			\textbf{Správca} je správca informačného systému ZOO. Nepredpokladáme žiadne jeho nekalé úmysly a dedí teda aspekty \textbf{Administratívneho pracovníka} a naviac pridáva svoje vlastné. Najmä také, ktoré by \textbf{Ošetrovateľ} či \textbf{Adminsitratívny pracovník} nemal mať k dispozícii. Napríklad odstránenie živočícha, kedže každeho živočícha je potrebné evidovať aj po jeho smrti, nemal by sa nikdy vymazať, no v prípade chyby pri pridávaní nového živočícha, to je žiadúce.
 
@@ -59,7 +59,7 @@
 		\includegraphics[width=0.85 \linewidth]{ER.png}}
 		\newpage
 		\subsection{Popis}
-			ER diagram pozostáva z niekoľkých entít - \textbf{Živočích}, jeho \textbf{Vlastnosti}, \textbf{Umiestnenia} a \textbf{Zamestnanec}, ktorý môže byť jeho ošetrovateľom, prípadne zamestnancom v roli správcu alebo administratívneho pracovníka (viď \hyperref[usecase]{diagram pripadov uzitia}).
+			ER diagram pozostáva z niekoľkých entít - \textbf{Živočích}, jeho \textbf{Vlastnosti}, \textbf{Umiestnenia} a \textbf{Zamestnanec}, ktorý môže byť jeho ošetrovateľom, prípadne zamestnancom v roli správcu alebo administratívneho pracovníka (viď \hyperref[usecase]{diagram prípadov užitia}).
 
 			\textbf{Zamestnanec} s patričným opravnením, môže meniť umiestnenie \textbf{Živočícha}, na čo slúži entita \textbf{Umiestnenie}. Pre uchovavanie obdobia umiestnenia živočícha sa využívajú atribúty vzťahu -- \textit{od} a \textit{do}.
 
