@@ -79,7 +79,7 @@ CREATE TABLE bol_umiestneny
     do              DATE,
 
     CHECK ( od <= do ),
-    PRIMARY KEY (ID_zivocicha, ID_umiestnenia)
+    PRIMARY KEY (ID_zivocicha, ID_umiestnenia, od)
 );
 
 CREATE TABLE vlastnost
@@ -220,31 +220,79 @@ ALTER TABLE bol_umiestneny ADD CONSTRAINT umiestnil     FOREIGN KEY (ID_zamestna
 ALTER TABLE bol_umiestneny ADD CONSTRAINT poloha     FOREIGN KEY (ID_umiestnenia)    REFERENCES umiestnenie;
 
 
-
-INSERT INTO typ_vlastnosti(nazov, popis) VALUES ('Hmostnost', 'Vazene na lacno');
-
-INSERT INTO pozicia(nazov, napln_prace) VALUES ('Riaditel', 'Nic nerobienie');
-INSERT INTO zamestnanec(meno, priezvisko, heslo, rodne_cislo, pozicia) VALUES ('Jozko', 'Osetrovatel', 'p4$$w0rd', '770821/4338', 1);
+INSERT INTO typ_vlastnosti(nazov, popis) VALUES ('Hmotnost', 'novorodenecka hmotnost');
+INSERT INTO typ_vlastnosti(nazov, popis) VALUES ('Vyska', 'novorodenecka vyska');
 
 
-INSERT INTO trieda_zivocicha(nazov, popis) VALUES ('tsts', 'ssss'); -- TODO
-INSERT INTO druh_zivocicha(nazov , popis) VALUES ('tsts', 'ssss');
-INSERT INTO rad_zivocicha(nazov, popis) VALUES ('tsts', 'ssss');
-INSERT INTO celad_zivocicha(nazov, popis) VALUES ('tsts', 'ssss');
-INSERT INTO rod_zivocicha(nazov, popis) VALUES ('tsts', 'ssss');
+INSERT INTO pozicia(nazov, napln_prace) VALUES ('Riaditel', 'Nic nerobenie');
+INSERT INTO pozicia(nazov, napln_prace) VALUES ('Osetrovatel', 'Staranie sa o pridelene zvierata');
+INSERT INTO pozicia(nazov, napln_prace) VALUES ('Spravca', 'Zodpovednost za chod IT systemov');
+INSERT INTO pozicia(nazov, napln_prace) VALUES ('Sekretarka', 'Zodpovednost za chod kancelarie');
+
+INSERT INTO zamestnanec(meno, priezvisko, heslo, rodne_cislo, pozicia) VALUES ('Jozef', 'Mrkvicka', 'sompan123', '770821/4338', 1);
+INSERT INTO zamestnanec(meno, priezvisko, heslo, rodne_cislo, pozicia) VALUES ('Martin', 'Osetrovatel', 'milujemzvieratka666', '810615/0019', 2);
+INSERT INTO zamestnanec(meno, priezvisko, heslo, rodne_cislo, pozicia) VALUES ('Jan', 'Obstaral', 'somobstaral42', '841207/0095', 2);
+INSERT INTO zamestnanec(meno, priezvisko, heslo, rodne_cislo, pozicia) VALUES ('Magda', 'Pomocna', 'pomahatachranit158', '935614/0101', 2);
+INSERT INTO zamestnanec(meno, priezvisko, heslo, rodne_cislo, pozicia) VALUES ('Samuel', 'Kazisvet', 'p4$$w0rd', '970903/0067', 3);
+INSERT INTO zamestnanec(meno, priezvisko, heslo, rodne_cislo, pozicia) VALUES ('Erzika', 'Sikovna', 'princesska2468', '555207/0095', 4);
+
+
+--Vybeh bez interakcie--
+INSERT INTO umiestnenie(nazov, vyuzitelna_plocha, interakcia) VALUES ('Safari', 2000, 0);
+
+INSERT INTO trieda_zivocicha(nazov, popis) VALUES ('Cicavce', 'saju mliecko');
+INSERT INTO druh_zivocicha(nazov , popis) VALUES ('Zirafa severna', 'ale zije na juhu'); -- zirafa na safari
+INSERT INTO rad_zivocicha(nazov, popis) VALUES ('Parnokopytnici', 'muz ma skoro 3 nohy');
+INSERT INTO celad_zivocicha(nazov) VALUES ('Zirafovite');
+INSERT INTO rod_zivocicha(nazov, popis) VALUES ('Zirafa', 'Giraffa');
 INSERT INTO typ_zivocicha(ID_triedy, ID_druhu, ID_radu, ID_celade, ID_rodu) VALUES(1, 1, 1, 1, 1);
 
-INSERT INTO zivocich(meno, datum_narodenia, ID_typu) VALUES ('kokot', TO_DATE('01.01.2022', 'dd.mm.yyyy'), 1);
-INSERT INTO vlastnost(hodnota, datum, ID_zivocicha, ID_zamestnanca, ID_vlastnosti) VALUES (420, TO_DATE('05052022', 'ddmmyyyy'), 1, 1, 1);
+INSERT INTO zivocich(meno, datum_narodenia, ID_typu) VALUES ('Spageta', TO_DATE('01.02.2022', 'dd.mm.yyyy'), 1);
+INSERT INTO vlastnost(hodnota, datum, ID_zivocicha, ID_zamestnanca, ID_vlastnosti) VALUES (168, TO_DATE('01022022', 'ddmmyyyy'), 1, 2, 1);
+INSERT INTO osetruje(ID_zivocicha, ID_zamestnanca) VALUES (1, 2);
+INSERT INTO bol_umiestneny(id_zivocicha, id_umiestnenia, id_zamestnanca, od) VALUES (1, 1, 2, TO_DATE('01.02.2022', 'dd.mm.yyyy'));
 
-INSERT INTO osetruje(ID_zivocicha, ID_zamestnanca) VALUES (1, 1);
+--Vybeh s interakciou--
+INSERT INTO umiestnenie(nazov, vyuzitelna_plocha, interakcia) VALUES ('Stredoeuropsky les', 700, 1);
+
+INSERT INTO druh_zivocicha(nazov , popis) VALUES ('Rys ostrovid', 'ale skuli'); -- rys v lese
+INSERT INTO rad_zivocicha(nazov, popis) VALUES ('Selmy', 'lovi ine zvierata');
+INSERT INTO celad_zivocicha(nazov) VALUES ('Mackovite');
+INSERT INTO rod_zivocicha(nazov, popis) VALUES ('Rys', 'Lynx');
+INSERT INTO typ_zivocicha(ID_triedy, ID_druhu, ID_radu, ID_celade, ID_rodu) VALUES(1, 2, 2, 2, 2);
+
+INSERT INTO zivocich(meno, datum_narodenia, ID_typu) VALUES ('Skulko', TO_DATE('13022022', 'dd.mm.yyyy'), 2);
+INSERT INTO vlastnost(hodnota, datum, ID_zivocicha, ID_zamestnanca, ID_vlastnosti) VALUES (78, TO_DATE('13022022', 'ddmmyyyy'), 2, 3, 1);
+INSERT INTO osetruje(ID_zivocicha, ID_zamestnanca) VALUES (2, 3);
+INSERT INTO bol_umiestneny(id_zivocicha, id_umiestnenia, id_zamestnanca, od) VALUES (2, 2, 2, TO_DATE('13022022', 'dd.mm.yyyy'));
 
 
-INSERT INTO umiestnenie(nazov, vyuzitelna_plocha, interakcia) VALUES ('Vybeh slonov', 2000, 0);  -- vybeh
+--Pavilon--
+INSERT INTO umiestnenie(nazov, vyuzitelna_plocha, teplota, vlhkost) VALUES ('Okolie rieky Nil', 1000, 29.6, 60);
 
-INSERT INTO umiestnenie(nazov, vyuzitelna_plocha, teplota, vlhkost) VALUES ('Pavilon opic', 500, 28.9, 90);
-INSERT INTO klietka(nazov, kod_zamku, ID_pavilonu) VALUES ('Simpanzi hood', 694269, 2);
+INSERT INTO druh_zivocicha(nazov , popis) VALUES ('Slon africky', 'ale zije na juhu'); -- slon pri rieke
+INSERT INTO rad_zivocicha(nazov, popis) VALUES ('Chobotnac', 'muz ma skoro 3 nohy');
+INSERT INTO celad_zivocicha(nazov, popis) VALUES ('Slonovita', 'Tato celad ma dlhe choboty');
+INSERT INTO rod_zivocicha(nazov, popis) VALUES ('Slon', 'Loxodonta');
+INSERT INTO typ_zivocicha(ID_triedy, ID_druhu, ID_radu, ID_celade, ID_rodu) VALUES(1, 3, 3, 3, 3);
 
-INSERT INTO bol_umiestneny(ID_zivocicha, ID_umiestnenia, ID_zamestnanca, od) VALUES (1, 1, 1, TO_DATE('01.01.2022', 'dd.mm.yyyy'));
+INSERT INTO zivocich(meno, datum_narodenia, ID_typu) VALUES ('Boris', TO_DATE('01.09.2021', 'dd.mm.yyyy'), 3);
+INSERT INTO vlastnost(hodnota, datum, ID_zivocicha, ID_zamestnanca, ID_vlastnosti) VALUES (400, TO_DATE('01092021', 'ddmmyyyy'), 1, 1, 1);
+INSERT INTO osetruje(ID_zivocicha, ID_zamestnanca) VALUES (3, 2);
+INSERT INTO bol_umiestneny(id_zivocicha, id_umiestnenia, id_zamestnanca, od) VALUES (3, 3, 2, TO_DATE('01.09.2021', 'dd.mm.yyyy'));
 
--- TODO: pridat normalne hodnoty
+--Pavilon s klietkami--
+INSERT INTO umiestnenie(nazov, vyuzitelna_plocha, teplota, vlhkost) VALUES ('Skandinavska krajina', 1000, 9.6, 10);
+INSERT INTO klietka(nazov, kod_zamku, ID_pavilonu) VALUES ('Skandinavske vtactvo', 133742, 4);
+
+INSERT INTO trieda_zivocicha(nazov, popis) VALUES ('Vtaky', 'Ti co lietaju');
+INSERT INTO druh_zivocicha(nazov , popis) VALUES ('Orol skalny', 'Aquila chrysaetos');
+INSERT INTO rad_zivocicha(nazov, popis) VALUES ('Dravec', 'Caka na potravu, pokial k nemu pride');
+INSERT INTO celad_zivocicha(nazov, popis) VALUES ('Jastrabovita', 'Skoro ako lastovicka');
+INSERT INTO rod_zivocicha(nazov, popis) VALUES ('Orol', 'Aquila');
+INSERT INTO typ_zivocicha(ID_triedy, ID_druhu, ID_radu, ID_celade, ID_rodu) VALUES(2, 4, 4, 4, 4);
+
+INSERT INTO zivocich(meno, datum_narodenia, ID_typu) VALUES ('Letec', TO_DATE('04.05.2019', 'dd.mm.yyyy'), 4);
+INSERT INTO vlastnost(hodnota, datum, ID_zivocicha, ID_zamestnanca, ID_vlastnosti) VALUES (70, TO_DATE('04052019', 'ddmmyyyy'), 1, 4, 2);
+INSERT INTO osetruje(ID_zivocicha, ID_zamestnanca) VALUES (4, 4);
+INSERT INTO bol_umiestneny(id_zivocicha, id_umiestnenia, id_zamestnanca, od) VALUES (4, 4, 4, TO_DATE('04.05.2019', 'dd.mm.yyyy'));
