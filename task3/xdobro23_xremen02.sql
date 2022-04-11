@@ -297,6 +297,9 @@ INSERT INTO vlastnost(hodnota, datum, ID_zivocicha, ID_zamestnanca, ID_vlastnost
 INSERT INTO osetruje(ID_zivocicha, ID_zamestnanca) VALUES (4, 4);
 INSERT INTO bol_umiestneny(id_zivocicha, id_umiestnenia, id_zamestnanca, od) VALUES (4, 4, 4, TO_DATE('04.05.2019', 'dd.mm.yyyy'));
 
+
+--------------- Uloha 3 ----------
+
 --spojenie 2 tabuliek
 --vypíše meno, priezvisko, pozíciu a náplň práce zamestnanca
 SELECT meno, priezvisko, pozicia, napln_prace FROM zamestnanec NATURAL JOIN pozicia WHERE pozicia.ID_pozicie = zamestnanec.pozicia;
@@ -313,3 +316,19 @@ SELECT popis, COUNT(hodnota) pocet_zadanych_hodnot FROM vlastnost NATURAL JOIN t
 --spojenie 3 tabuliek
 --vypíše mená živočíchov, kde sú umiestnené a o aký typ umiestnenia ide
 SELECT meno, nazov, CASE WHEN interakcia is not null THEN 'Výbeh' ELSE 'Pavilón' END AS Typ_umiestnenia FROM zivocich NATURAL JOIN bol_umiestneny NATURAL JOIN umiestnenie;
+
+-- VNORENY SELECT S POUZITIM IN:
+-- Vypise ID, meno a datum narodenia zivocicha, ktory je cicavec.
+-- Trieda zivocicha `Cicavec` je ulozena v tabulke `trieda_zivocicha`, 2. vnoreny SELECT by
+-- sa teda dal nahradit za konstantu `1` pod ktorou je `Cicavec` v `trieda_zivocicha`
+-- ale toto je prehladnejsie.
+SELECT ID_zivocicha, meno, datum_narodenia FROM zivocich WHERE ID_typu IN (SELECT ID_typu FROM TYP_ZIVOCICHA WHERE ID_triedy = (SELECT ID_triedy FROM trieda_zivocicha WHERE nazov = 'Cicavce'));
+
+-- SELECT S POUZITIM EXISTS
+-- Vypise zamestnancov (ich ID, mena a priezviska), ktori neosetruju ziadne zviera.
+SELECT ID_zamestnanca, meno, priezvisko FROM zamestnanec Z WHERE NOT EXISTS(SELECT * FROM osetruje WHERE osetruje.ID_zamestnanca = Z.ID_zamestnanca);
+
+
+-- SELECT S AGREGACNOU FUNKCIOU A GROUP BY
+-- Vypise ID zamestnanca, meno, jeho priezvisko a pocet zverat, ktore osetruje.
+SELECT ID_zamestnanca, meno, priezvisko, COUNT(*) as pocet_osetrovanych FROM zamestnanec NATURAL JOIN osetruje GROUP BY ID_zamestnanca, meno, priezvisko ORDER BY pocet_osetrovanych DESC;
