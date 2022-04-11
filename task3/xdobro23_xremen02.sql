@@ -301,8 +301,8 @@ INSERT INTO bol_umiestneny(id_zivocicha, id_umiestnenia, id_zamestnanca, od) VAL
 --------------- Uloha 3 ----------
 
 --spojenie 2 tabuliek
---vypíše meno, priezvisko, pozíciu a náplň práce zamestnanca
-SELECT meno, priezvisko, pozicia, napln_prace FROM zamestnanec NATURAL JOIN pozicia WHERE pozicia.ID_pozicie = zamestnanec.pozicia;
+--vypíše meno, priezvisko, nazov pozicie a náplň práce zamestnanca
+SELECT meno, priezvisko, nazov, napln_prace FROM zamestnanec NATURAL JOIN pozicia WHERE pozicia.ID_pozicie = zamestnanec.pozicia;
 
 --spojenie 2 tabuliek
 --vypíše názov, popis a hodnotu meranej vlastnosti pre zviera s ID = 1 (žirafa)
