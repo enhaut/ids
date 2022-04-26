@@ -448,13 +448,78 @@ END;
 
 BEGIN
     kompletny_prehlad;
-end;
+END;
+
+
+-- Vypise percentualnu obsadenost typu umiestnenia podla zadanej priemernej potrebnej zivotnej plochy.
+-- Tato informacia je potrebna hlavne pri obstaravani novych zvierat.
+CREATE OR REPLACE PROCEDURE obsadenost(potrebna_plocha_param in INT, typ_umiestnenia in VARCHAR2)
+AS BEGIN
+    DECLARE CURSOR umiestnenia_ptr IS (SELECT ID_umiestnenia, vyuzitelna_plocha, interakcia FROM umiestnenie);
+        "celkova_plocha" umiestnenie.vyuzitelna_plocha%TYPE;
+
+        "id_umiestnenia" umiestnenie.ID_umiestnenia%TYPE;
+        "umiestnenie_plocha" umiestnenie.vyuzitelna_plocha%TYPE;
+        "interakcia_umiestnenia" umiestnenie.interakcia%TYPE; -- na rozlisenie vybeh/pavilon
+
+
+        "pocet_zvierat" INT;
+        "pocet_zvierat_temp" INT;
+        "obsadenost" NUMBER;
+
+    BEGIN
+        "celkova_plocha" := 0;
+        "pocet_zvierat" := 0;
+
+        IF typ_umiestnenia NOT IN ('vybeh', 'pavilon') THEN
+            RAISE_APPLICATION_ERROR(-20990, 'Podporovane su len typy `vybeh` a `pavilon`.');
+        END IF;
+        IF potrebna_plocha_param <= 0 THEN
+            RAISE_APPLICATION_ERROR(-20991, 'Potrebna plocha pre zviera musi byt vacsia ako 0');
+        end if;
+
+        OPEN umiestnenia_ptr;
+            LOOP
+                FETCH umiestnenia_ptr INTO "id_umiestnenia", "umiestnenie_plocha", "interakcia_umiestnenia";
+                EXIT WHEN umiestnenia_ptr%NOTFOUND;
+
+                IF (typ_umiestnenia = 'vybeh' AND "interakcia_umiestnenia" IS NULL) OR (typ_umiestnenia = 'pavilon' AND "interakcia_umiestnenia" IS NOT NULL) THEN
+                    CONTINUE;
+                END IF;
+
+                SELECT COUNT(*) INTO "pocet_zvierat_temp" FROM bol_umiestneny B WHERE B.do IS NULL AND B.ID_umiestnenia = "id_umiestnenia";
+
+                "pocet_zvierat" := "pocet_zvierat" + "pocet_zvierat_temp";
+                "celkova_plocha" := "celkova_plocha" + "umiestnenie_plocha";
+            END LOOP;
+        CLOSE umiestnenia_ptr;
+
+        "obsadenost" := ("pocet_zvierat" * potrebna_plocha_param / "celkova_plocha") * 100;
+
+        DBMS_OUTPUT.PUT_LINE('Celkova plocha umiestneni je ' || "celkova_plocha" ||
+                             ' a celkovy pocet zvierat je ' || "pocet_zvierat");
+
+        DBMS_OUTPUT.PUT_LINE('Obsadenost je: ' || "obsadenost" || '%');
+
+        EXCEPTION WHEN ZERO_DIVIDE THEN
+        BEGIN
+            IF "celkova_plocha" = 0 THEN
+                DBMS_OUTPUT.put_line('Celkova plocha je nulova!');
+            END IF;
+        END;
+    END;
+END;
+
+CALL obsadenost(90, 'vybeh');
+CALL obsadenost(50, 'pavilon');
+-- CALL obsadenost(0, 'pavilon'); -- nevalidna potrebna plocha => vyvola chybu
+-- CALL obsadenost(50, 'aaaa'); -- nevalidny typ umiestnenia => vyvola chybu
 
 
 -- Triggre --
 -- Pri zadani umrtia zvierata sa nastavi doba `do` v `bol_umiestneny` a odstrani jeho osetrovatela z `osetruje`.
 -- Zaroven skontroluje, ze datum umrtia je validny.
-CREATE OR REPLACE TRIGGER "vymaz_typ_zivocicha"
+CREATE OR REPLACE TRIGGER "pochovaj_zviera"
 	BEFORE UPDATE ON "ZIVOCICH"
 	FOR EACH ROW
 BEGIN
