@@ -401,6 +401,56 @@ SELECT * FROM "pocet_zivocichov_v_umiestneniach";
 
 GRANT ALL ON "pocet_zivocichov_v_umiestneniach" TO XREMEN02;
 
+
+-- Procedury --
+-- Procedura vypise aktualny pocet zivych/mrtvych zvierat v databaze, priemerny pocet zvierat v umiestneni,
+-- priemerny pocet zvierat na osetrovatela.
+CREATE OR REPLACE PROCEDURE kompletny_prehlad
+IS
+	"zive_zvierata" NUMBER;
+	"mrtve_zvierata" NUMBER;
+	"celkovo_zvierat" NUMBER;
+	"osetrovatelia" NUMBER;
+	"umiestnenia" NUMBER;
+	"priemer_v_umiestneni" NUMBER;
+	"priemer_na_osetrovatela" NUMBER;
+BEGIN
+	SELECT COUNT(*) INTO "zive_zvierata" FROM ZIVOCICH WHERE datum_umrtia IS NULL;
+	SELECT COUNT(*) INTO "mrtve_zvierata" FROM ZIVOCICH WHERE datum_umrtia IS NOT NULL;
+	SELECT COUNT(*) INTO "osetrovatelia" FROM ZAMESTNANEC WHERE pozicia = (SELECT ID_pozicie FROM pozicia WHERE nazov='Osetrovatel');
+	SELECT COUNT(*) INTO "umiestnenia" FROM umiestnenie;
+
+	"priemer_v_umiestneni" := "zive_zvierata" / "umiestnenia";
+	"priemer_na_osetrovatela" := "zive_zvierata" / "osetrovatelia";
+
+	"celkovo_zvierat" := "zive_zvierata" + "mrtve_zvierata";
+
+	DBMS_OUTPUT.PUT_LINE('Celkovo je v zoo ' || "celkovo_zvierat" || ' zvierat, z toho je ' ||
+	                     "zive_zvierata" || ' zivych a ' || "mrtve_zvierata" || ' mrtvych.');
+
+	DBMS_OUTPUT.PUT_LINE('Celkovo je v zoo ' || "umiestnenia" || ' umiestneni a priemerny pocet zvierat v nich je '
+	                         || "priemer_v_umiestneni");
+
+	DBMS_OUTPUT.PUT_LINE('Celkovo je v zoo ' || "osetrovatelia" || ' osetrovatelov. Priemerne kazdy osetruje ' ||
+	                     "priemer_na_osetrovatela" || ' zvierat.');
+
+	EXCEPTION WHEN ZERO_DIVIDE THEN
+	BEGIN
+		IF "umiestnenia" = 0 THEN
+			DBMS_OUTPUT.put_line('Chybaju akekolvek umiestnenia!');
+		END IF;
+
+		IF "osetrovatelia" = 0 THEN
+			DBMS_OUTPUT.put_line('Chybaju osetrovatelia!');
+		END IF;
+	END;
+END;
+
+BEGIN
+    kompletny_prehlad;
+end;
+
+
 -- Triggre --
 -- Pri zadani umrtia zvierata sa nastavi doba `do` v `bol_umiestneny` a odstrani jeho osetrovatela z `osetruje`.
 -- Zaroven skontroluje, ze datum umrtia je validny.
