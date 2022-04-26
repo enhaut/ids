@@ -29,7 +29,6 @@ CREATE TABLE zivocich
 
     ID_typu         INT             NOT NULL,
 
-    CHECK ( datum_umrtia >= datum_narodenia ),
     PRIMARY KEY (ID_zivocicha)
 );
 
@@ -403,10 +402,18 @@ SELECT * FROM "pocet_zivocichov_v_umiestneniach";
 GRANT ALL ON "pocet_zivocichov_v_umiestneniach" TO XREMEN02;
 
 -- Triggre --
-CREATE TRIGGER log_patron_delete AFTER DELETE on zivocich
-FOR EACH ROW
+-- Pri zadani umrtia zvierata sa nastavi doba `do` v `bol_umiestneny` a odstrani jeho osetrovatela z `osetruje`.
+-- Zaroven skontroluje, ze datum umrtia je validny.
+CREATE OR REPLACE TRIGGER "vymaz_typ_zivocicha"
+	BEFORE UPDATE ON "ZIVOCICH"
+	FOR EACH ROW
 BEGIN
-DELETE FROM typ_zivocicha
-    WHERE typ_zivocicha.ID_typu = old.ID_typu;
-END;
+    IF :new.datum_umrtia IS NOT NULL THEN
+        IF :new.datum_umrtia < :old.datum_narodenia THEN
+            RAISE_APPLICATION_ERROR(-20999, 'Datum umrtia nemoze byt skor ako narodenie.');
+        END IF;
 
+        UPDATE bol_umiestneny SET DO = :new.datum_umrtia WHERE ID_zivocicha = :new.ID_zivocicha;
+        DELETE FROM osetruje WHERE osetruje.ID_zivocicha = :new.ID_zivocicha;
+    END IF;
+END;
