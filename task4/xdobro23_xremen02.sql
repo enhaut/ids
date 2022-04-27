@@ -262,6 +262,7 @@ INSERT INTO typ_zivocicha(ID_triedy, ID_druhu, ID_radu, ID_celade, ID_rodu) VALU
 INSERT INTO zivocich(meno, datum_narodenia, ID_typu) VALUES ('Spageta', TO_DATE('01.02.2022', 'dd.mm.yyyy'), 1);
 INSERT INTO vlastnost(hodnota, datum, ID_zivocicha, ID_zamestnanca, ID_vlastnosti) VALUES (168, TO_DATE('01022022', 'ddmmyyyy'), 1, 2, 1);
 INSERT INTO osetruje(ID_zivocicha, ID_zamestnanca) VALUES (1, 2);
+INSERT INTO osetruje(ID_zivocicha, ID_zamestnanca) VALUES (1, 3);
 INSERT INTO bol_umiestneny(id_zivocicha, id_umiestnenia, id_zamestnanca, od) VALUES (1, 1, 2, TO_DATE('01.02.2022', 'dd.mm.yyyy'));
 
 --Vybeh s interakciou--
@@ -290,6 +291,8 @@ INSERT INTO typ_zivocicha(ID_triedy, ID_druhu, ID_radu, ID_celade, ID_rodu) VALU
 INSERT INTO zivocich(meno, datum_narodenia, ID_typu) VALUES ('Boris', TO_DATE('01.09.2021', 'dd.mm.yyyy'), 3);
 INSERT INTO vlastnost(hodnota, datum, ID_zivocicha, ID_zamestnanca, ID_vlastnosti) VALUES (400, TO_DATE('01092021', 'ddmmyyyy'), 3, 1, 1);
 INSERT INTO osetruje(ID_zivocicha, ID_zamestnanca) VALUES (3, 2);
+INSERT INTO osetruje(ID_zivocicha, ID_zamestnanca) VALUES (3, 3);
+INSERT INTO osetruje(ID_zivocicha, ID_zamestnanca) VALUES (3, 4);
 INSERT INTO bol_umiestneny(id_zivocicha, id_umiestnenia, id_zamestnanca, od) VALUES (3, 3, 2, TO_DATE('01.09.2021', 'dd.mm.yyyy'));
 
 
@@ -546,3 +549,46 @@ BEGIN
         DELETE FROM osetruje WHERE osetruje.ID_zivocicha = :new.ID_zivocicha;
     END IF;
 END;
+
+-- EXPLAIN PLAN --
+-- Ktore cicavce tazsie ako 100 kg maju menej ako 3 osetrovatelov
+EXPLAIN PLAN FOR
+SELECT Z.ID_zivocicha, Z.meno, COUNT(*) osetrovatelov
+FROM zivocich Z
+NATURAL JOIN
+    typ_zivocicha T,
+    vlastnost V,
+    osetruje O
+WHERE T.ID_triedy = 1
+    AND V.ID_vlastnosti = 1
+    AND V.ID_zivocicha = Z.ID_zivocicha
+    AND Z.ID_zivocicha = O.ID_zivocicha
+    AND hodnota > 100
+GROUP BY Z.ID_zivocicha, meno
+HAVING COUNT(O.ID_zamestnanca) < 3;
+SELECT PLAN_TABLE_OUTPUT FROM TABLE(DBMS_XPLAN.DISPLAY());
+
+-- Indexy --
+CREATE INDEX trieda_index ON typ_zivocicha(ID_triedy);
+CREATE INDEX vlastnost_index ON vlastnost(ID_zivocicha, ID_vlastnosti, hodnota);
+CREATE INDEX osetruje_index ON osetruje(ID_zivocicha);
+
+EXPLAIN PLAN FOR
+SELECT Z.ID_zivocicha, Z.meno, COUNT(*) osetrovatelov
+FROM zivocich Z
+NATURAL JOIN
+    typ_zivocicha T,
+    vlastnost V,
+    osetruje O
+WHERE T.ID_triedy = 1
+    AND V.ID_vlastnosti = 1
+    AND V.ID_zivocicha = Z.ID_zivocicha
+    AND Z.ID_zivocicha = O.ID_zivocicha
+    AND hodnota > 100
+GROUP BY Z.ID_zivocicha, meno
+HAVING COUNT(O.ID_zamestnanca) < 3;
+SELECT PLAN_TABLE_OUTPUT FROM TABLE(DBMS_XPLAN.DISPLAY());
+
+DROP INDEX trieda_index;
+DROP INDEX vlastnost_index;
+DROP INDEX osetruje_index;
