@@ -228,6 +228,19 @@ INSERT INTO pozicia(nazov, napln_prace) VALUES ('Osetrovatel', 'Staranie sa o pr
 INSERT INTO pozicia(nazov, napln_prace) VALUES ('Spravca', 'Zodpovednost za chod IT systemov');
 INSERT INTO pozicia(nazov, napln_prace) VALUES ('Sekretarka', 'Zodpovednost za chod kancelarie');
 
+-- Trigger 2/2 --
+-- Pred vlozenim uzivatela do databazy, prida k jeho heslu salt a vysledny string zahashuje.
+-- Lepsia hashovacia funkcia ako MD5 na serveri nebola dostupna
+CREATE OR REPLACE TRIGGER "zahashuj_heslo"
+	BEFORE INSERT ON "ZAMESTNANEC"
+	FOR EACH ROW
+DECLARE
+    salt VARCHAR2(16);
+BEGIN
+    salt := 's3cr3tS4lt';
+	:NEW.heslo := DBMS_OBFUSCATION_TOOLKIT.MD5(input=> utl_raw.cast_to_raw(CONCAT(salt, :NEW.heslo)));
+END;
+
 INSERT INTO zamestnanec(meno, priezvisko, heslo, rodne_cislo, pozicia) VALUES ('Jozef', 'Mrkvicka', 'sompan123', '770821/4338', 1);
 INSERT INTO zamestnanec(meno, priezvisko, heslo, rodne_cislo, pozicia) VALUES ('Martin', 'Osetrovatel', 'milujemzvieratka666', '810615/0019', 2);
 INSERT INTO zamestnanec(meno, priezvisko, heslo, rodne_cislo, pozicia) VALUES ('Jan', 'Obstaral', 'somobstaral42', '841207/0095', 2);
@@ -517,6 +530,7 @@ CALL obsadenost(50, 'pavilon');
 
 
 -- Triggre --
+-- Trigger 1/2 --
 -- Pri zadani umrtia zvierata sa nastavi doba `do` v `bol_umiestneny` a odstrani jeho osetrovatela z `osetruje`.
 -- Zaroven skontroluje, ze datum umrtia je validny.
 CREATE OR REPLACE TRIGGER "pochovaj_zviera"
